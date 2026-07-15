@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIWI Market</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <section id="view-landing" class="view active">
+<div class="l-top">
+  <header class="l-header">
+    <a href="#/" class="l-logo">&lt;/&gt; RIWI Market</a>
+    <nav class="l-nav">
+      <a href="#inicio">Inicio</a>
+      <a href="#caracteristicas">Características</a>
+      <a href="#comunidad">Comunidad</a>
+    </nav>
+    <div class="l-header-actions">
+      <a href="#/login" class="btn-outline">Iniciar sesión</a>
+    </div>
+  </header>
+
+  <section id="inicio" class="l-hero">
+      <div class="l-hero-text">
+        <span class="l-eyebrow">$ comunidad_activa --coders riwi</span>
+        <h1>Tu código,<br>ahora <span class="accent">en el mercado.</span></h1>
+        <p class="l-hero-sub">
+          RIWI Market es el espacio donde los coders y egresados de RIWI publican, promocionan
+          y venden lo que construyeron durante su formación: apps, APIs, plantillas y
+          automatizaciones. Un catálogo curado, hecho por y para la comunidad.
+        </p>
+        <div class="l-hero-cta">
+          <a href="#/registro" class="btn-primario">Crear cuenta</a>
+          <a href="#/catalogo" class="btn-coral">Explorar catálogo →</a>
+        </div>
+      </div>
+
+      <div class="l-hero-visual" aria-hidden="true">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+            <span class="terminal-title">vendedor@riwi-market</span>
+          </div>
+          <div class="terminal-body">
+            <p><span class="prompt">$</span> riwi publish ./api-clima</p>
+            <p class="terminal-muted">Subiendo metadatos del producto...</p>
+            <p class="terminal-muted">Esperando aprobación del equipo RIWI...</p>
+            <p class="terminal-ok">✓ Producto aprobado y publicado</p>
+            <div class="terminal-card">
+              <div class="terminal-card-icon">🔌</div>
+              <div>
+                <p class="terminal-card-title">api-clima</p>
+                <p class="terminal-card-meta">Automatizaciones · $45.000 · ⭐ 4.8</p>
+              </div>
+            </div>
+            <p><span class="prompt">$</span> <span class="cursor">▌</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <main>
+    <section id="caracteristicas" class="l-section">
+      <span class="l-eyebrow l-eyebrow-dark">/características</span>
+      <h2>De tu carpeta de proyectos, a ingresos reales</h2>
+      <p class="l-section-sub">Todo lo que necesitas para convertir lo que ya construiste en algo que otros puedan usar y pagar.</p>
+
+      <div class="l-features">
+        <div class="l-feature-card">
+          <div class="l-feature-icon">📦</div>
+          <h3>Publica en minutos</h3>
+          <p>Sube tu producto con título, descripción, categoría y el enlace a tu repositorio. Sin fricción, sin formularios eternos.</p>
+        </div>
+        <div class="l-feature-card">
+          <div class="l-feature-icon">✅</div>
+          <h3>Catálogo curado</h3>
+          <p>Cada publicación pasa por revisión del equipo RIWI antes de salir al catálogo, así todo lo que se vende mantiene un estándar.</p>
+        </div>
+        <div class="l-feature-card">
+          <div class="l-feature-icon">🔐</div>
+          <h3>Acceso seguro al código</h3>
+          <p>Al comprar, se otorga acceso directo al repositorio privado del producto. Sin archivos sueltos, sin enlaces que expiran.</p>
+        </div>
+        <div class="l-feature-card">
+          <div class="l-feature-icon">⭐</div>
+          <h3>Reputación real</h3>
+          <p>Solo quienes compraron pueden calificar. La reputación de cada vendedor se construye con compras reales, no con clics.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="comunidad" class="l-comunidad">
+      <div class="l-comunidad-text">
+        <span class="l-eyebrow">/comunidad</span>
+        <h2>Hecho por coders RIWI, para coders RIWI</h2>
+        <p>
+          Cada producto en este catálogo salió de un proceso de formación real: un entrenamiento,
+          un reto, un proyecto integrador. RIWI Market le da a ese trabajo un lugar donde seguir
+          teniendo valor después de la última entrega.
+        </p>
+        <a href="#/registro" class="btn-primario">Únete a la comunidad</a>
+      </div>
+      <div class="l-comunidad-visual" aria-hidden="true">
+        <div class="l-role-chip">🖥️ Compradores explorando el catálogo</div>
+        <div class="l-role-chip l-role-chip-offset">🚀 Vendedores publicando su trabajo</div>
+        <div class="l-role-chip">✅ Admins asegurando la calidad</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="l-footer">
+    <span class="l-logo">&lt;/&gt; RIWI Market</span>
+    <p>Un espacio para impulsar el talento de la comunidad RIWI.</p>
+  </footer>
+  </section>
+
+  <section id="view-login" class="view">
+<div class="form-card">
+    <h2>Iniciar sesión</h2>
+    <p class="subtitle">Accede a tu cuenta de RIWI Market</p>
+
+    <div id="login-mensaje-error" class="mensaje-error"></div>
+
+    <form id="login-form">
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="login-email" required>
+      </div>
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <input type="password" id="login-password" required>
+      </div>
+      <button type="submit" style="width:100%">Iniciar sesión</button>
+    </form>
+
+    <p style="text-align:center;font-size:13px;color:var(--color-text-muted);margin-top:16px">
+      ¿No tienes cuenta? <a href="#/registro" style="color:var(--color-accent)">Regístrate</a>
+    </p>
+  </div>
+  </section>
+
+  <section id="view-registro" class="view">
+<div class="form-card">
+    <h2>Crear cuenta</h2>
+    <p class="subtitle">Únete a la comunidad de RIWI Market</p>
+
+    <div id="registro-mensaje-error" class="mensaje-error"></div>
+    <div id="registro-mensaje-exito" class="mensaje-exito"></div>
+
+    <form id="registro-form">
+      <div class="campo">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="registro-nombre" required>
+      </div>
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="registro-email" required>
+      </div>
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <input type="password" id="registro-password" minlength="6" required>
+      </div>
+      <button type="submit" style="width:100%">Crear cuenta</button>
+    </form>
+
+    <p style="text-align:center;font-size:13px;color:var(--color-text-muted);margin-top:16px">
+      ¿Ya tienes cuenta? <a href="#/login" style="color:var(--color-accent)">Inicia sesión</a>
+    </p>
+  </div>
+  </section>
+
+  <section id="view-catalogo" class="view">
+<div class="navbar">
+    <div class="logo"><a href="#/catalogo">&lt;/&gt; RIWI Market</a></div>
+    <nav id="catalogo-nav-links"></nav>
+  </div>
+
+  <div class="container">
+    <h1 style="margin-bottom:2px">Productos digitales de la comunidad</h1>
+    <p class="subtitle">Apps, APIs, plantillas y automatizaciones creadas por coders RIWI</p>
+
+    <div style="display:flex;gap:8px;margin:18px 0 10px">
+      <input type="text" id="catalogo-busqueda" placeholder="Buscar productos...">
+    </div>
+
+    <div class="filtros" id="catalogo-filtros-categoria">
+      <span class="chip activo" data-categoria="">Todas</span>
+    </div>
+
+    <div id="catalogo-grid-productos" class="grid-productos"></div>
+    <div id="catalogo-vacio" class="vacio" style="display:none">No se encontraron productos con esos filtros.</div>
+  </div>
+  </section>
+
+  <section id="view-producto" class="view">
+<div class="navbar">
+    <div class="logo"><a href="#/catalogo">&lt;/&gt; RIWI Market</a></div>
+    <nav id="producto-nav-links"></nav>
+  </div>
+
+  <div class="container" id="producto-contenedor" style="max-width:750px">
+    <p class="vacio">Cargando producto...</p>
+  </div>
+  </section>
+
+  <section id="view-mis-compras" class="view">
+<div class="navbar">
+    <div class="logo"><a href="#/catalogo">&lt;/&gt; RIWI Market</a></div>
+    <nav id="mc-nav-links"></nav>
+  </div>
+
+  <div class="container">
+    <h1>Mis compras</h1>
+    <p class="subtitle">Historial de productos adquiridos</p>
+    <div id="mc-lista-compras" style="margin-top:20px"></div>
+  </div>
+  </section>
+
+  <section id="view-perfil" class="view">
+<div class="navbar">
+    <div class="logo"><a href="#/catalogo">&lt;/&gt; RIWI Market</a></div>
+    <nav id="perfil-nav-links"></nav>
+  </div>
+
+  <div class="container" style="max-width:500px">
+    <h1>Mi perfil</h1>
+    <div id="perfil-info-perfil" class="lista-item" style="display:block;margin-bottom:20px"></div>
+
+    <div id="perfil-mensaje-error" class="mensaje-error"></div>
+    <div id="perfil-mensaje-exito" class="mensaje-exito"></div>
+
+    <div id="perfil-zona-vendedor"></div>
+  </div>
+  </section>
+
+  <section id="view-dashboard-vendedor" class="view">
+<div class="navbar">
+    <div class="logo"><a href="#/catalogo">&lt;/&gt; RIWI Market</a></div>
+    <nav id="dv-nav-links"></nav>
+  </div>
+
+  <div class="container">
+    <h1>Panel de vendedor</h1>
+
+    <div id="dv-stats-vendedor" class="stats-grid"></div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <h2 style="margin:0">Mis productos</h2>
+      <button onclick="document.getElementById('dv-form-nuevo-producto').style.display='block'; this.style.display='none'">+ Publicar producto</button>
+    </div>
+
+    <div id="dv-form-nuevo-producto" class="form-card" style="display:none;margin:0 0 20px;max-width:none">
+      <h3 style="margin-top:0">Nuevo producto</h3>
+      <div id="dv-mensaje-error" class="mensaje-error"></div>
+      <div id="dv-mensaje-exito" class="mensaje-exito"></div>
+      <form id="dv-form-producto">
+        <div class="campo">
+          <label>Título</label>
+          <input type="text" id="dv-titulo" required>
+        </div>
+        <div class="campo">
+          <label>Descripción</label>
+          <textarea id="dv-descripcion" rows="3" required></textarea>
+        </div>
+        <div class="campo">
+          <label>Categoría</label>
+          <select id="dv-categoria_id" required></select>
+        </div>
+        <div class="campo">
+          <label>Precio (COP)</label>
+          <input type="number" id="dv-precio" min="0" required>
+        </div>
+        <div class="campo">
+          <label>Enlace al repositorio</label>
+          <input type="url" id="dv-url_repositorio" placeholder="https://github.com/..." required>
+        </div>
+        <button type="submit">Publicar (queda en revisión)</button>
+      </form>
+    </div>
+
+    <div id="dv-lista-mis-productos"></div>
+  </div>
+  </section>
+
+  <section id="view-dashboard-admin" class="view">
+<div class="navbar">
+    <div class="logo"><a href="#/catalogo">&lt;/&gt; RIWI Market</a></div>
+    <nav id="da-nav-links"></nav>
+  </div>
+
+  <div class="container">
+    <h1>Panel de administrador</h1>
+
+    <div id="da-stats-admin" class="stats-grid"></div>
+
+    <h2>Productos en revisión</h2>
+    <div id="da-lista-pendientes"></div>
+
+    <h2 style="margin-top:30px">Solicitudes para ser vendedor</h2>
+    <div id="da-lista-solicitudes"></div>
+
+    <h2 style="margin-top:30px">Usuarios registrados</h2>
+    <div class="filtros">
+      <span class="chip activo" data-filtro="">Todos</span>
+      <span class="chip" data-filtro="activo">Activos</span>
+      <span class="chip" data-filtro="bloqueado">Bloqueados</span>
+    </div>
+    <div id="da-lista-usuarios"></div>
+  </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/api.js"></script>
+  <script src="js/alertas.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/catalogo.js"></script>
+  <script src="js/producto.js"></script>
+  <script src="js/mis-compras.js"></script>
+  <script src="js/perfil.js"></script>
+  <script src="js/dashboard-vendedor.js"></script>
+  <script src="js/dashboard-admin.js"></script>
+</body>
+</html>
