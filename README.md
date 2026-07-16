@@ -58,6 +58,16 @@ docker-compose up -d
 
 Levanta PostgreSQL en `localhost:5432` con las tablas y datos iniciales.
 
+### Conexión con DBeaver
+
+| Campo | Valor |
+|---|---|
+| Host | `localhost` |
+| Port | `5432` |
+| Database | `marketplace_riwi` |
+| Username | `riwi_user` |
+| Password | `riwi_pass` |
+
 ### 2. Backend
 
 ```bash
