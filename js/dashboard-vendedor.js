@@ -24,14 +24,15 @@ function initDashboardVendedor() {
 
     alertaCargando("Publicando producto...");
 
-    try {
-      await window.RiwiApp.api.apiFetch("/productos", { method: "POST", auth: true, body });
-      await alertaExito("Queda pendiente de revisión por el administrador.", "Producto publicado");
-      formProducto.reset();
-      document.getElementById("dv-form-nuevo-producto").style.display = "none";
-      cargarMisProductos();
-      cargarEstadisticasVendedor();
-    } catch (err) {
+try {
+        await window.RiwiApp.api.apiFetch("/productos", { method: "POST", auth: true, body });
+        await alertaExito("Queda pendiente de revisión por el administrador.", "Producto publicado");
+        formProducto.reset();
+        document.getElementById("dv-form-nuevo-producto").style.display = "none";
+        document.getElementById("dv-btn-publicar").style.display = "";
+        cargarMisProductos();
+        cargarEstadisticasVendedor();
+      } catch (err) {
       alertaError(err.message, "No se pudo publicar el producto");
     }
   });
