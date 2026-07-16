@@ -3,7 +3,7 @@ const router = express.Router();
 const calificacionModel = require("../models/calificacion");
 const { requiereRol } = require("../middleware/auth");
 
-router.post("/", requiereRol(), async (req, res) => {
+router.post("/calificaciones", requiereRol(), async (req, res) => {
   try {
     const { compra_id, puntuacion, comentario } = req.body || {};
 
