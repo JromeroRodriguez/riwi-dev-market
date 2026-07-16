@@ -101,7 +101,5 @@ INSERT INTO categorias (nombre) VALUES
 
 -- ============================================================
 -- USUARIO ADMINISTRADOR INICIAL
--- (cambiar el hash por uno real generado con bcrypt antes de usar)
+-- Se crea automáticamente al iniciar el servidor (seedAdmin en app.js)
 -- ============================================================
-INSERT INTO usuarios (nombre, email, password_hash, rol, estado)
-VALUES ('Admin RIWI', 'admin@riwi.io', 'CAMBIAR_POR_HASH_BCRYPT', 'administrador', 'activo');
