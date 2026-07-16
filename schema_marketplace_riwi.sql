@@ -104,4 +104,4 @@ INSERT INTO categorias (nombre) VALUES
 -- (el hash se corrige automáticamente al iniciar el servidor)
 -- ============================================================
 INSERT INTO usuarios (nombre, email, password_hash, rol, estado)
-VALUES ('Admin RIWI', 'admin@riwi.io', 'CAMBIAR_POR_HASH_BCRYPT', 'administrador', 'activo');
+VALUES ('Admin RIWI', 'admin@riwi.io', '$2b$10$tDaJH9wLPyNXJBGnenrjEuqZkJPjbE9EZGN1JP.G3xnvdnU3FdSDq', 'administrador', 'activo');
