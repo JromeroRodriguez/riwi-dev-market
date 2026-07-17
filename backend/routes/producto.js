@@ -2,22 +2,15 @@ const express = require("express");
 const router = express.Router();
 const productoModel = require("../models/producto");
 const notificacionModel = require("../models/notificacion");
-const { requiereRol, verificarToken } = require("../middleware/auth");
+const { requiereRol } = require("../middleware/auth");
 
-function verificarTokenOpcional(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) return next();
-  verificarToken(req, res, next);
-}
-
-router.get("/", verificarTokenOpcional, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { categoria_id, precio_max, q } = req.query;
     const productos = await productoModel.listar_publicados(
       categoria_id || null,
       precio_max ? parseFloat(precio_max) : null,
-      q || null,
-      req.usuario?.id || null
+      q || null
     );
     return res.json({ productos });
   } catch (err) {
@@ -46,12 +39,9 @@ router.get("/mios", requiereRol("vendedor", "administrador"), async (req, res) =
   }
 });
 
-router.get("/:producto_id", verificarTokenOpcional, async (req, res) => {
+router.get("/:producto_id", async (req, res) => {
   try {
-    const producto = await productoModel.obtener_por_id(
-      req.params.producto_id,
-      req.usuario?.id || null
-    );
+    const producto = await productoModel.obtener_por_id(req.params.producto_id);
     if (!producto) return res.status(404).json({ error: "Producto no encontrado" });
     return res.json({ producto });
   } catch (err) {

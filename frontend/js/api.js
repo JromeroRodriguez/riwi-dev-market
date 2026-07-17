@@ -36,7 +36,7 @@
       window.location.hash = `#/${ruta}`;
     },
 
-    async apiFetch(endpoint, { method = "GET", body = null, auth = false, authOptional = false } = {}) {
+    async apiFetch(endpoint, { method = "GET", body = null, auth = false } = {}) {
       const headers = { "Content-Type": "application/json" };
 
       if (auth) {
@@ -46,9 +46,6 @@
           throw new Error("Debes iniciar sesión para continuar");
         }
         headers["Authorization"] = `Bearer ${token}`;
-      } else if (authOptional) {
-        const token = this.obtenerToken();
-        if (token) headers["Authorization"] = `Bearer ${token}`;
       }
 
       const opciones = { method, headers };

@@ -10,7 +10,7 @@ async function crear_producto(vendedor_id, categoria_id, titulo, descripcion, pr
   return rows[0];
 }
 
-async function listar_publicados(categoria_id = null, precio_max = null, busqueda = null, comprador_id = null) {
+async function listar_publicados(categoria_id = null, precio_max = null, busqueda = null) {
   const condiciones = ["p.estado = 'publicado'"];
   const valores = [];
   let idx = 1;
@@ -30,17 +30,9 @@ async function listar_publicados(categoria_id = null, precio_max = null, busqued
   }
 
   const where = condiciones.join(" AND ");
-  valores.push(comprador_id || null);
   const { rows } = await pool.query(
     `SELECT p.id, p.titulo, p.descripcion, p.precio, p.url_repositorio,
             p.fecha_creacion, c.nombre AS categoria, u.nombre AS vendedor,
-            CASE WHEN $${idx}::uuid IS NULL THEN FALSE
-                 ELSE EXISTS (
-                   SELECT 1 FROM compras co2
-                   WHERE co2.producto_id = p.id AND co2.comprador_id = $${idx}
-                   AND co2.estado_pago = 'completado'
-                 )
-            END AS ya_comprado,
             COALESCE(AVG(cal.puntuacion), 0) AS calificacion_promedio,
             COUNT(cal.id) AS total_calificaciones
      FROM productos p
@@ -56,21 +48,14 @@ async function listar_publicados(categoria_id = null, precio_max = null, busqued
   return rows;
 }
 
-async function obtener_por_id(producto_id, comprador_id = null) {
+async function obtener_por_id(producto_id) {
   const { rows } = await pool.query(
-    `SELECT p.*, c.nombre AS categoria, u.nombre AS vendedor,
-            CASE WHEN $2::uuid IS NULL THEN FALSE
-                 ELSE EXISTS (
-                   SELECT 1 FROM compras co
-                   WHERE co.producto_id = p.id AND co.comprador_id = $2
-                   AND co.estado_pago = 'completado'
-                 )
-            END AS ya_comprado
+    `SELECT p.*, c.nombre AS categoria, u.nombre AS vendedor
      FROM productos p
      JOIN categorias c ON c.id = p.categoria_id
      JOIN usuarios u ON u.id = p.vendedor_id
      WHERE p.id = $1`,
-    [producto_id, comprador_id]
+    [producto_id]
   );
   return rows[0] || null;
 }
