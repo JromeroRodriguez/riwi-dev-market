@@ -94,7 +94,6 @@ function abrirCalificacion(compraId, productoId) {
 async function enviarCalificacion(compraId) {
   const puntuacion = document.getElementById(`puntuacion-${compraId}`).value;
   const comentario = document.getElementById(`comentario-${compraId}`).value.trim();
-  const resultado = document.getElementById(`resultado-${compraId}`);
 
   try {
     await window.RiwiApp.api.apiFetch("/calificaciones", {
@@ -102,13 +101,15 @@ async function enviarCalificacion(compraId) {
       auth: true,
       body: { compra_id: compraId, puntuacion, comentario: comentario || null },
     });
-    resultado.style.color = "var(--color-success-text)";
-    resultado.textContent = "¡Gracias por tu calificación!";
+    await cargarCompras();
   } catch (err) {
-    resultado.style.color = "var(--color-danger-text)";
-    resultado.textContent = err.message.includes("Ya calificaste")
-      ? "Ya calificaste esta compra."
-      : err.message;
+    const resultado = document.getElementById(`resultado-${compraId}`);
+    if (resultado) {
+      resultado.style.color = "var(--color-danger-text)";
+      resultado.textContent = err.message.includes("Ya calificaste")
+        ? "Ya calificaste esta compra."
+        : err.message;
+    }
   }
 }
 
