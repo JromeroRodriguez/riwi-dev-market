@@ -37,7 +37,6 @@
         catalogo: () => app.views.catalogo?.(),
         producto: () => app.views.producto?.(parametro),
         "mis-compras": () => app.views.misCompras?.(),
-        carrito: () => app.views.carrito?.(),
         perfil: () => app.views.perfil?.(),
         "dashboard-vendedor": () => app.views.dashboardVendedor?.(),
         "dashboard-admin": () => app.views.dashboardAdmin?.(),

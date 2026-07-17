@@ -27,17 +27,4 @@ function requiereRol(...rolesPermitidos) {
   };
 }
 
-function obtenerUsuarioOpcional(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    try {
-      const decoded = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET_KEY);
-      req.usuario = { id: decoded.sub, rol: decoded.rol, nombre: decoded.nombre };
-    } catch {
-      req.usuario = null;
-    }
-  }
-  next();
-}
-
-module.exports = { verificarToken, requiereRol, obtenerUsuarioOpcional };
+module.exports = { verificarToken, requiereRol };

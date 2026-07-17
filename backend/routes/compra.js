@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const compraModel = require("../models/compra");
+const productoModel = require("../models/producto");
 const notificacionModel = require("../models/notificacion");
-const carritoModel = require("../models/carrito");
 const { requiereRol } = require("../middleware/auth");
 
 router.post("/", requiereRol(), async (req, res) => {
@@ -16,10 +16,10 @@ router.post("/", requiereRol(), async (req, res) => {
       return res.status(400).json({ error: "No puedes comprar tu propio producto" });
     }
 
+    const marcado = await productoModel.marcar_vendido(producto_id);
+    if (!marcado) return res.status(409).json({ error: "Este producto ya no está disponible" });
+
     const compra = await compraModel.crear_compra(req.usuario.id, producto_id, producto.precio);
-    if (!compra) {
-      return res.status(409).json({ error: "Este producto ya no está disponible" });
-    }
 
     await notificacionModel.crear_notificacion(
       producto.vendedor_id,
@@ -27,68 +27,6 @@ router.post("/", requiereRol(), async (req, res) => {
     );
 
     return res.status(201).json({ mensaje: "Compra realizada con éxito", compra });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
-
-router.post("/lote", requiereRol(), async (req, res) => {
-  try {
-    const { producto_ids } = req.body || {};
-    if (!Array.isArray(producto_ids) || producto_ids.length === 0) {
-      return res.status(400).json({ error: "producto_ids es obligatorio y debe ser un array" });
-    }
-
-    const productos = await compraModel.obtener_productos_para_lote(producto_ids);
-
-    const productosValidos = [];
-    const productosNoDisponibles = [];
-
-    for (const id of producto_ids) {
-      const p = productos.find((x) => x.id === id);
-      if (!p) {
-        productosNoDisponibles.push({ id, motivo: "no encontrado" });
-      } else if (p.estado !== "publicado") {
-        productosNoDisponibles.push({ id, motivo: "no disponible" });
-      } else if (p.vendedor_id === req.usuario.id) {
-        productosNoDisponibles.push({ id, motivo: "es tu propio producto" });
-      } else {
-        productosValidos.push({ producto_id: p.id, monto: p.precio });
-      }
-    }
-
-    if (productosValidos.length === 0) {
-      return res.status(400).json({
-        error: "Ninguno de los productos está disponible para compra",
-        productos_no_disponibles: productosNoDisponibles,
-      });
-    }
-
-    const resultado = await compraModel.crear_compra_lote(req.usuario.id, productosValidos);
-
-    if (!resultado.exito) {
-      return res.status(409).json({
-        error: `El producto ${resultado.producto_id} ya no está disponible`,
-      });
-    }
-
-    for (const { producto_id } of productosValidos) {
-      const producto = productos.find((p) => p.id === producto_id);
-      await notificacionModel.crear_notificacion(
-        producto.vendedor_id,
-        "¡Has realizado una nueva venta! Revisa tu panel para más detalles."
-      );
-    }
-
-    // Limpiar del carrito los productos comprados (software es re-vendible: no se marca "vendido")
-    await carritoModel.limpiar(req.usuario.id, productosValidos.map((p) => p.producto_id));
-
-    return res.status(201).json({
-      mensaje: `${resultado.compras.length} compra(s) realizada(s) con éxito`,
-      compras: resultado.compras,
-      productos_no_disponibles: productosNoDisponibles,
-    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Error interno del servidor" });

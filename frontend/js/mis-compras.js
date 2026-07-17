@@ -23,9 +23,7 @@ async function cargarCompras() {
         </div>
         <div class="acciones">
           <button class="secundario" data-action="ver-acceso" data-compra-id="${c.id}">Ver repositorio</button>
-          ${c.ya_calificada
-            ? `<span class="badge-ya-calificado">✓ Calificado</span>`
-            : `<button class="secundario" data-action="abrir-calificacion" data-compra-id="${c.id}" data-producto-id="${c.producto_id}">Calificar</button>`}
+          <button class="secundario" data-action="abrir-calificacion" data-compra-id="${c.id}" data-producto-id="${c.producto_id}">Calificar</button>
         </div>
       </div>
       <div id="acceso-${c.id}" style="display:none;margin:-4px 0 12px;padding:12px 16px;background:#fff;border:1px solid var(--color-border);border-radius:var(--radius);font-size:13px"></div>
@@ -101,6 +99,7 @@ function abrirCalificacion(compraId, productoId) {
 async function enviarCalificacion(compraId) {
   const puntuacion = document.getElementById(`puntuacion-${compraId}`).value;
   const comentario = document.getElementById(`comentario-${compraId}`).value.trim();
+  const resultado = document.getElementById(`resultado-${compraId}`);
 
   try {
     await window.RiwiApp.api.apiFetch("/calificaciones", {
@@ -108,15 +107,11 @@ async function enviarCalificacion(compraId) {
       auth: true,
       body: { compra_id: compraId, puntuacion, comentario: comentario || null },
     });
-    await cargarCompras();
+    resultado.style.color = "var(--color-success-text)";
+    resultado.textContent = "¡Gracias por tu calificación!";
   } catch (err) {
-    const resultado = document.getElementById(`resultado-${compraId}`);
-    if (resultado) {
-      resultado.style.color = "var(--color-danger-text)";
-      resultado.textContent = err.message.includes("Ya calificaste")
-        ? "Ya calificaste esta compra."
-        : err.message;
-    }
+    resultado.style.color = "var(--color-danger-text)";
+    resultado.textContent = err.message;
   }
 }
 

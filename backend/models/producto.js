@@ -10,7 +10,7 @@ async function crear_producto(vendedor_id, categoria_id, titulo, descripcion, pr
   return rows[0];
 }
 
-async function listar_publicados(categoria_id = null, precio_max = null, busqueda = null, comprador_id = null) {
+async function listar_publicados(categoria_id = null, precio_max = null, busqueda = null) {
   const condiciones = ["p.estado = 'publicado'"];
   const valores = [];
   let idx = 1;
@@ -27,12 +27,6 @@ async function listar_publicados(categoria_id = null, precio_max = null, busqued
     condiciones.push(`(p.titulo ILIKE $${idx} OR p.descripcion ILIKE $${idx})`);
     valores.push(`%${busqueda}%`);
     idx++;
-  }
-  if (comprador_id) {
-    condiciones.push(
-      `p.id NOT IN (SELECT producto_id FROM compras WHERE comprador_id = $${idx++} AND estado_pago = 'completado')`
-    );
-    valores.push(comprador_id);
   }
 
   const where = condiciones.join(" AND ");

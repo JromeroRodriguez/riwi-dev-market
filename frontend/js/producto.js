@@ -90,15 +90,16 @@ function renderCalificaciones(calificaciones) {
 
 function renderZonaAccion(producto, usuario, esDueno) {
   const zona = document.getElementById("producto-zona-accion");
-  zona.innerHTML = "";
 
   if (esDueno) {
-    zona.innerHTML = `<p class="subtitle">Este es tu propio producto.</p>`;
+    zona.innerHTML = producto.estado === "vendido"
+      ? `<p class="subtitle">Este producto ya fue vendido y ya no aparece en el catálogo.</p>`
+      : `<p class="subtitle">Este es tu propio producto.</p>`;
     return;
   }
 
   if (producto.estado !== "publicado") {
-    zona.innerHTML = `<p class="subtitle">Este producto ya no está disponible.</p>`;
+    zona.innerHTML = `<p class="subtitle">Este producto ya no está disponible (fue vendido).</p>`;
     return;
   }
 
@@ -107,32 +108,9 @@ function renderZonaAccion(producto, usuario, esDueno) {
     return;
   }
 
-  const enCarrito = window.RiwiApp?.carrito?.estaEnCarrito?.(producto.id);
-
-  if (enCarrito) {
-    zona.innerHTML = `
-      <div style="display:flex;gap:10px;align-items:center">
-        <a href="#/carrito"><button class="secundario">Ver en el carrito</button></a>
-      </div>
-    `;
-    return;
-  }
-
-  zona.innerHTML = "";
   const btn = document.createElement("button");
-  btn.textContent = "Agregar al carrito";
-  btn.addEventListener("click", async () => {
-    const agregado = await window.RiwiApp?.carrito?.agregar?.({
-      id: producto.id,
-      titulo: producto.titulo,
-      precio: producto.precio,
-      categoria: producto.categoria,
-      vendedor: producto.vendedor,
-    });
-    if (agregado) {
-      renderZonaAccion(producto, usuario, esDueno);
-    }
-  });
+  btn.textContent = "Comprar producto";
+  btn.addEventListener("click", () => comprarProducto(producto.id, btn));
   zona.appendChild(btn);
 }
 
