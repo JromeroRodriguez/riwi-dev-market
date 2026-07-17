@@ -11,28 +11,72 @@ function initDashboardVendedor() {
   if (!formProducto || formProducto.dataset.bound === "true") return;
 
   formProducto.dataset.bound = "true";
+
+  const radiosTipo = formProducto.querySelectorAll('input[name="dv-tipo-entrega"]');
+  const grupoGithub = document.getElementById("dv-grupo-github");
+  const grupoZip = document.getElementById("dv-grupo-zip");
+  const inputUrl = document.getElementById("dv-url_repositorio");
+  const inputZip = document.getElementById("dv-archivo_zip");
+
+  radiosTipo.forEach((r) => {
+    r.addEventListener("change", (e) => {
+      if (e.target.value === "github") {
+        grupoGithub.style.display = "block";
+        grupoZip.style.display = "none";
+        inputUrl.setAttribute("required", "true");
+        inputZip.removeAttribute("required");
+      } else {
+        grupoGithub.style.display = "none";
+        grupoZip.style.display = "block";
+        inputUrl.removeAttribute("required");
+        inputZip.setAttribute("required", "true");
+      }
+    });
+  });
+
   formProducto.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const body = {
-      titulo: document.getElementById("dv-titulo").value.trim(),
-      descripcion: document.getElementById("dv-descripcion").value.trim(),
-      categoria_id: document.getElementById("dv-categoria_id").value,
-      precio: parseFloat(document.getElementById("dv-precio").value),
-      url_repositorio: document.getElementById("dv-url_repositorio").value.trim(),
-    };
+    const formData = new FormData();
+    formData.append("titulo", document.getElementById("dv-titulo").value.trim());
+    formData.append("descripcion", document.getElementById("dv-descripcion").value.trim());
+    formData.append("categoria_id", document.getElementById("dv-categoria_id").value);
+    formData.append("precio", parseFloat(document.getElementById("dv-precio").value));
+
+    const tipoEntrega = formProducto.querySelector('input[name="dv-tipo-entrega"]:checked').value;
+    if (tipoEntrega === "github") {
+      formData.append("url_repositorio", inputUrl.value.trim());
+    } else {
+      const archivoZip = inputZip.files[0];
+      if (!archivoZip) {
+        alertaError("Debe seleccionar un archivo ZIP", "Error de validación");
+        return;
+      }
+      formData.append("archivo_zip", archivoZip);
+    }
 
     alertaCargando("Publicando producto...");
 
-try {
-        await window.RiwiApp.api.apiFetch("/productos", { method: "POST", auth: true, body });
-        await alertaExito("Queda pendiente de revisión por el administrador.", "Producto publicado");
-        formProducto.reset();
-        document.getElementById("dv-form-nuevo-producto").style.display = "none";
-        document.getElementById("dv-btn-publicar").style.display = "";
-        cargarMisProductos();
-        cargarEstadisticasVendedor();
-      } catch (err) {
+    try {
+      await window.RiwiApp.api.apiFetch("/productos", {
+        method: "POST",
+        auth: true,
+        body: formData,
+      });
+      await alertaExito("Queda pendiente de revisión por el administrador.", "Producto publicado");
+      formProducto.reset();
+      
+      // Restaurar estado inicial visual del formulario
+      grupoGithub.style.display = "block";
+      grupoZip.style.display = "none";
+      inputUrl.setAttribute("required", "true");
+      inputZip.removeAttribute("required");
+
+      document.getElementById("dv-form-nuevo-producto").style.display = "none";
+      document.getElementById("dv-btn-publicar").style.display = "";
+      cargarMisProductos();
+      cargarEstadisticasVendedor();
+    } catch (err) {
       alertaError(err.message, "No se pudo publicar el producto");
     }
   });

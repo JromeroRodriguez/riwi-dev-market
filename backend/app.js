@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db/connection");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const authRoutes = require("./routes/auth");
 const usuarioRoutes = require("./routes/usuario");
@@ -13,11 +13,14 @@ const calificacionRoutes = require("./routes/calificacion");
 const notificacionRoutes = require("./routes/notificacion");
 const estadisticaRoutes = require("./routes/estadistica");
 
+const path = require("path");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuarioRoutes);

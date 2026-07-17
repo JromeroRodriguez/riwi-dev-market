@@ -1,5 +1,5 @@
 const pool = require("../db/connection");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 async function crear_usuario(nombre, email, password, rol = "comprador") {
   const password_hash = await bcrypt.hash(password, 10);

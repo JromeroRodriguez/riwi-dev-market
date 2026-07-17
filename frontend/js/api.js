@@ -34,7 +34,10 @@
     },
 
     async apiFetch(endpoint, { method = "GET", body = null, auth = false } = {}) {
-      const headers = { "Content-Type": "application/json" };
+      const headers = {};
+      if (!(body instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
+      }
 
       if (auth) {
         const token = this.obtenerToken();
@@ -46,7 +49,9 @@
       }
 
       const opciones = { method, headers };
-      if (body) opciones.body = JSON.stringify(body);
+      if (body) {
+        opciones.body = body instanceof FormData ? body : JSON.stringify(body);
+      }
 
       const respuesta = await fetch(`${this.API_BASE_URL}${endpoint}`, opciones);
       const datos = await respuesta.json().catch(() => ({}));

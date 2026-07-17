@@ -50,7 +50,14 @@ async function verAcceso(compraId) {
   }
   try {
     const data = await window.RiwiApp.api.apiFetch(`/compras/${compraId}/acceso`, { auth: true });
-    el.innerHTML = `Repositorio: <a href="${data.url_repositorio}" target="_blank" style="color:var(--color-accent)">${data.url_repositorio}</a>`;
+    let url = data.url_repositorio;
+    if (url.startsWith("/uploads/")) {
+      const baseUrl = window.RiwiApp.api.API_BASE_URL.replace("/api", "");
+      url = `${baseUrl}${url}`;
+      el.innerHTML = `Archivo del producto: <a href="${url}" download target="_blank" style="color:var(--color-accent);font-weight:600">Descargar archivo ZIP 📥</a>`;
+    } else {
+      el.innerHTML = `Repositorio: <a href="${url}" target="_blank" style="color:var(--color-accent);font-weight:600">${url}</a>`;
+    }
     el.style.display = "block";
   } catch (err) {
     el.innerHTML = err.message;
