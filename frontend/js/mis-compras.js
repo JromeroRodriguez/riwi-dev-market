@@ -23,7 +23,9 @@ async function cargarCompras() {
         </div>
         <div class="acciones">
           <button class="secundario" data-action="ver-acceso" data-compra-id="${c.id}">Ver repositorio</button>
-          <button class="secundario" data-action="abrir-calificacion" data-compra-id="${c.id}" data-producto-id="${c.producto_id}">Calificar</button>
+          ${c.ya_calificada
+            ? `<span class="badge-ya-calificado">✓ Calificado</span>`
+            : `<button class="secundario" data-action="abrir-calificacion" data-compra-id="${c.id}" data-producto-id="${c.producto_id}">Calificar</button>`}
         </div>
       </div>
       <div id="acceso-${c.id}" style="display:none;margin:-4px 0 12px;padding:12px 16px;background:#fff;border:1px solid var(--color-border);border-radius:var(--radius);font-size:13px"></div>
@@ -104,7 +106,9 @@ async function enviarCalificacion(compraId) {
     resultado.textContent = "¡Gracias por tu calificación!";
   } catch (err) {
     resultado.style.color = "var(--color-danger-text)";
-    resultado.textContent = err.message;
+    resultado.textContent = err.message.includes("Ya calificaste")
+      ? "Ya calificaste esta compra."
+      : err.message;
   }
 }
 

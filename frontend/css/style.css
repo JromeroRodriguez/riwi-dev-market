@@ -463,6 +463,16 @@ button.peligro { background: var(--color-danger-text); }
 .badge.archivado { background: #ece9e4; color: var(--color-text-muted); }
 .badge.vendido { background: var(--color-accent-light); color: var(--color-accent-dark); }
 
+.badge-ya-calificado {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

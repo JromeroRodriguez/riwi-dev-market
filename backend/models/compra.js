@@ -31,7 +31,8 @@ async function listar_por_comprador(comprador_id) {
   const { rows } = await pool.query(
     `SELECT co.id, co.monto, co.estado_pago, co.fecha_compra,
             p.id AS producto_id, p.titulo, p.descripcion,
-            c.nombre AS categoria, u.nombre AS vendedor
+            c.nombre AS categoria, u.nombre AS vendedor,
+            EXISTS (SELECT 1 FROM calificaciones cal WHERE cal.compra_id = co.id) AS ya_calificada
      FROM compras co
      JOIN productos p ON p.id = co.producto_id
      JOIN categorias c ON c.id = p.categoria_id
