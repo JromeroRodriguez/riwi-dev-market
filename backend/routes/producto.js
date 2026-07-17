@@ -23,15 +23,53 @@ const storage = multer.diskStorage({
   }
 });
 
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === "application/zip" || file.mimetype === "application/x-zip-compressed" || file.originalname.toLowerCase().endsWith(".zip")) {
-    cb(null, true);
-  } else {
-    cb(new Error("Solo se permiten archivos .zip"), false);
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === "archivo_zip") {
+      if (file.mimetype === "application/zip" || file.mimetype === "application/x-zip-compressed" || file.originalname.toLowerCase().endsWith(".zip")) {
+        cb(null, true);
+      } else {
+        cb(new Error("Solo se permiten archivos .zip"), false);
+      }
+    } else if (file.fieldname === "imagen_portada") {
+      const allowedExts = /jpe?g|png|webp/i;
+      const isExtOk = allowedExts.test(path.extname(file.originalname));
+      const isMimeOk = /image\/(jpeg|png|webp)/i.test(file.mimetype);
+      if (isExtOk && isMimeOk) {
+        cb(null, true);
+      } else {
+        cb(new Error("La imagen de portada debe ser en formato JPG, PNG o WebP"), false);
+      }
+    } else {
+      cb(new Error("Campo de archivo no válido"), false);
+    }
   }
+});
+
+const cpUpload = upload.fields([
+  { name: "archivo_zip", maxCount: 1 },
+  { name: "imagen_portada", maxCount: 1 }
+]);
+
+const cpUploadMiddleware = (req, res, next) => {
+  cpUpload(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
 };
 
-const upload = multer({ storage, fileFilter });
+const deleteUploadedFiles = (files) => {
+  if (!files) return;
+  if (files.archivo_zip && files.archivo_zip[0]) {
+    fs.unlink(files.archivo_zip[0].path, () => {});
+  }
+  if (files.imagen_portada && files.imagen_portada[0]) {
+    fs.unlink(files.imagen_portada[0].path, () => {});
+  }
+};
 
 router.get("/", async (req, res) => {
   try {
@@ -79,7 +117,7 @@ router.get("/:producto_id", async (req, res) => {
   }
 });
 
-router.post("/", requiereRol("vendedor", "administrador"), upload.single("archivo_zip"), async (req, res) => {
+router.post("/", requiereRol("vendedor", "administrador"), cpUploadMiddleware, async (req, res) => {
   try {
     const { titulo, descripcion, categoria_id, precio } = req.body || {};
     let { url_repositorio } = req.body || {};
@@ -87,67 +125,79 @@ router.post("/", requiereRol("vendedor", "administrador"), upload.single("archiv
     const campos_obligatorios = ["titulo", "descripcion", "categoria_id", "precio"];
     const faltantes = campos_obligatorios.filter((c) => !req.body[c] && req.body[c] !== 0);
 
+    const files = req.files || {};
+    const zipFile = files.archivo_zip ? files.archivo_zip[0] : null;
+    const imagenFile = files.imagen_portada ? files.imagen_portada[0] : null;
+
     if (faltantes.length) {
-      if (req.file) {
-        fs.unlink(req.file.path, () => {});
-      }
+      deleteUploadedFiles(files);
       return res.status(400).json({ error: `Campos obligatorios faltantes: ${faltantes.join(", ")}` });
     }
     if (parseFloat(precio) < 0) {
-      if (req.file) {
-        fs.unlink(req.file.path, () => {});
-      }
+      deleteUploadedFiles(files);
       return res.status(400).json({ error: "El precio no puede ser negativo" });
     }
 
-    if (req.file) {
-      url_repositorio = `/uploads/${req.file.filename}`;
+    if (imagenFile && imagenFile.size > 2 * 1024 * 1024) {
+      deleteUploadedFiles(files);
+      return res.status(400).json({ error: "La imagen de portada no debe superar los 2 MB" });
+    }
+
+    if (zipFile) {
+      url_repositorio = `/uploads/${zipFile.filename}`;
     } else {
       if (!url_repositorio || !url_repositorio.trim()) {
+        deleteUploadedFiles(files);
         return res.status(400).json({ error: "Debe proporcionar un enlace de repositorio de GitHub o subir un archivo .zip" });
       }
     }
 
+    const url_imagen = imagenFile ? `/uploads/${imagenFile.filename}` : null;
+
     const producto = await productoModel.crear_producto(
-      req.usuario.id, categoria_id, titulo.trim(), descripcion.trim(), precio, url_repositorio.trim()
+      req.usuario.id, categoria_id, titulo.trim(), descripcion.trim(), precio, url_repositorio.trim(), url_imagen
     );
     return res.status(201).json({ mensaje: "Producto creado, pendiente de revisión", producto });
   } catch (err) {
     console.error(err);
-    if (req.file) {
-      fs.unlink(req.file.path, () => {});
-    }
+    deleteUploadedFiles(req.files);
     return res.status(500).json({ error: err.message || "Error interno del servidor" });
   }
 });
 
-router.put("/:producto_id", requiereRol("vendedor", "administrador"), upload.single("archivo_zip"), async (req, res) => {
+router.put("/:producto_id", requiereRol("vendedor", "administrador"), cpUploadMiddleware, async (req, res) => {
   try {
     if (!(await productoModel.es_propietario(req.params.producto_id, req.usuario.id))) {
-      if (req.file) {
-        fs.unlink(req.file.path, () => {});
-      }
+      deleteUploadedFiles(req.files);
       return res.status(403).json({ error: "No tienes permiso para editar este producto" });
     }
 
+    const files = req.files || {};
+    const zipFile = files.archivo_zip ? files.archivo_zip[0] : null;
+    const imagenFile = files.imagen_portada ? files.imagen_portada[0] : null;
+
+    if (imagenFile && imagenFile.size > 2 * 1024 * 1024) {
+      deleteUploadedFiles(files);
+      return res.status(400).json({ error: "La imagen de portada no debe superar los 2 MB" });
+    }
+
     const campos = { ...req.body };
-    if (req.file) {
-      campos.url_repositorio = `/uploads/${req.file.filename}`;
+    if (zipFile) {
+      campos.url_repositorio = `/uploads/${zipFile.filename}`;
+    }
+    if (imagenFile) {
+      campos.url_imagen = `/uploads/${imagenFile.filename}`;
     }
 
     const producto = await productoModel.actualizar_producto(req.params.producto_id, req.usuario.id, campos);
     if (!producto) {
-      if (req.file) {
-        fs.unlink(req.file.path, () => {});
-      }
+      deleteUploadedFiles(files);
       return res.status(400).json({ error: "No se enviaron campos válidos para actualizar o el producto no existe" });
     }
     return res.json({ mensaje: "Producto actualizado, pendiente de nueva revisión", producto });
   } catch (err) {
     console.error(err);
-    if (req.file) {
-      fs.unlink(req.file.path, () => {});
-    }
+    deleteUploadedFiles(req.files);
     return res.status(500).json({ error: err.message || "Error interno del servidor" });
   }
 });

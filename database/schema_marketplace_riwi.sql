@@ -40,6 +40,7 @@ CREATE TABLE productos (
     descripcion TEXT NOT NULL,
     precio NUMERIC(10, 2) NOT NULL CHECK (precio >= 0),
     url_repositorio VARCHAR(255) NOT NULL,
+    url_imagen VARCHAR(255),
     estado VARCHAR(20) NOT NULL DEFAULT 'en_revision'
         CHECK (estado IN ('en_revision', 'aprobado', 'rechazado', 'publicado', 'archivado', 'vendido')),
     motivo_rechazo TEXT,

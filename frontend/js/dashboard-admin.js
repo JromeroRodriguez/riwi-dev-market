@@ -48,8 +48,11 @@ async function cargarPendientes() {
     }
 
     contenedor.innerHTML = data.productos.map((p) => `
-      <div class="lista-item">
-        <div>
+      <div class="lista-item" style="display:flex;align-items:center;gap:14px">
+        <div class="admin-portada-preview">
+          <img src="${window.RiwiApp.api.obtenerImagenUrl(p.url_imagen, p.categoria)}" alt="${p.titulo}" class="admin-portada-preview-img">
+        </div>
+        <div style="flex:1">
           <p style="font-weight:600;margin:0">${p.titulo}</p>
           <p class="info-secundaria">Vendedor: ${p.vendedor} · ${p.categoria} · ${window.RiwiApp.api.formatoMoneda(p.precio)}</p>
         </div>

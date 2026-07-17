@@ -90,7 +90,9 @@ async function cargarProductos() {
       const promedio = Number(p.calificacion_promedio).toFixed(1);
 
       card.innerHTML = `
-        <div class="icono">${icono}</div>
+        <div class="portada-contenedor">
+          <img class="portada-img" src="${window.RiwiApp.api.obtenerImagenUrl(p.url_imagen, p.categoria)}" alt="${p.titulo}">
+        </div>
         <p class="titulo">${p.titulo}</p>
         <p class="categoria">${p.categoria}</p>
         <div class="footer-card">

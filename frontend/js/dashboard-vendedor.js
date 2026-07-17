@@ -8,6 +8,19 @@ function initDashboardVendedor() {
   cargarMisProductos();
 
   const formProducto = document.getElementById("dv-form-producto");
+  if (formProducto) {
+    formProducto.reset();
+    const msgError = document.getElementById("dv-mensaje-error");
+    const msgExito = document.getElementById("dv-mensaje-exito");
+    if (msgError) { msgError.textContent = ""; msgError.style.display = "none"; }
+    if (msgExito) { msgExito.textContent = ""; msgExito.style.display = "none"; }
+    
+    const btnPublicar = document.getElementById("dv-btn-publicar");
+    const formNuevoContenedor = document.getElementById("dv-form-nuevo-producto");
+    if (btnPublicar) btnPublicar.style.display = "";
+    if (formNuevoContenedor) formNuevoContenedor.style.display = "none";
+  }
+
   if (!formProducto || formProducto.dataset.bound === "true") return;
 
   formProducto.dataset.bound = "true";
@@ -17,6 +30,26 @@ function initDashboardVendedor() {
   const grupoZip = document.getElementById("dv-grupo-zip");
   const inputUrl = document.getElementById("dv-url_repositorio");
   const inputZip = document.getElementById("dv-archivo_zip");
+
+  const btnPublicar = document.getElementById("dv-btn-publicar");
+  if (btnPublicar) {
+    btnPublicar.onclick = null;
+    btnPublicar.addEventListener("click", () => {
+      formProducto.reset();
+      grupoGithub.style.display = "block";
+      grupoZip.style.display = "none";
+      inputUrl.setAttribute("required", "true");
+      inputZip.removeAttribute("required");
+
+      const msgError = document.getElementById("dv-mensaje-error");
+      const msgExito = document.getElementById("dv-mensaje-exito");
+      if (msgError) { msgError.textContent = ""; msgError.style.display = "none"; }
+      if (msgExito) { msgExito.textContent = ""; msgExito.style.display = "none"; }
+
+      btnPublicar.style.display = "none";
+      document.getElementById("dv-form-nuevo-producto").style.display = "block";
+    });
+  }
 
   radiosTipo.forEach((r) => {
     r.addEventListener("change", (e) => {
@@ -53,6 +86,20 @@ function initDashboardVendedor() {
         return;
       }
       formData.append("archivo_zip", archivoZip);
+    }
+
+    const imagenPortada = document.getElementById("dv-imagen_portada").files[0];
+    if (imagenPortada) {
+      const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+      if (!allowedExtensions.exec(imagenPortada.name)) {
+        alertaError("La imagen de portada debe ser en formato JPG, PNG o WebP.", "Error de validación");
+        return;
+      }
+      if (imagenPortada.size > 2 * 1024 * 1024) {
+        alertaError("La imagen de portada no debe superar los 2 MB.", "Error de validación");
+        return;
+      }
+      formData.append("imagen_portada", imagenPortada);
     }
 
     alertaCargando("Publicando producto...");

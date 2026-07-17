@@ -101,6 +101,24 @@
       return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(valor);
     },
 
+    obtenerImagenUrl(url_imagen, categoria) {
+      if (url_imagen) {
+        if (url_imagen.startsWith("/")) {
+          return `http://localhost:5000${url_imagen}`;
+        }
+        return url_imagen;
+      }
+
+      const defaults = {
+        "Apps web": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'><defs><linearGradient id='g1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%236366f1'/><stop offset='100%' stop-color='%23a855f7'/></linearGradient></defs><rect width='400' height='300' fill='url(%23g1)'/><rect x='40' y='50' width='320' height='200' rx='10' fill='%23ffffff' fill-opacity='0.15' stroke='%23ffffff' stroke-width='2'/><circle cx='60' cy='70' r='5' fill='%23ffffff'/><circle cx='75' cy='70' r='5' fill='%23ffffff'/><circle cx='90' cy='70' r='5' fill='%23ffffff'/><line x1='40' y1='90' x2='360' y2='90' stroke='%23ffffff' stroke-width='1.5'/><rect x='80' y='120' width='240' height='12' rx='4' fill='%23ffffff' fill-opacity='0.8'/><rect x='80' y='145' width='180' height='8' rx='4' fill='%23ffffff' fill-opacity='0.6'/><rect x='80' y='165' width='210' height='8' rx='4' fill='%23ffffff' fill-opacity='0.6'/><rect x='150' y='195' width='100' height='30' rx='6' fill='%23ffffff' fill-opacity='0.9'/></svg>",
+        "APIs": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'><defs><linearGradient id='g2' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2310b981'/><stop offset='100%' stop-color='%233b82f6'/></linearGradient></defs><rect width='400' height='300' fill='url(%23g2)'/><path d='M140 150h120M200 90v120M120 120a20 20 0 0 1 20-20h120a20 20 0 0 1 20 20v60a20 20 0 0 1-20 20H140a20 20 0 0 1-20-20z' fill='none' stroke='%23ffffff' stroke-width='3' stroke-dasharray='6 4'/><rect x='160' y='130' width='80' height='40' rx='8' fill='%23ffffff' fill-opacity='0.2' stroke='%23ffffff' stroke-width='2'/><text x='200' y='155' font-family='sans-serif' font-size='16' font-weight='bold' fill='%23ffffff' text-anchor='middle'>JSON</text></svg>",
+        "Plantillas": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'><defs><linearGradient id='g3' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23f59e0b'/><stop offset='100%' stop-color='%23ef4444'/></linearGradient></defs><rect width='400' height='300' fill='url(%23g3)'/><rect x='50' y='40' width='300' height='220' rx='8' fill='none' stroke='%23ffffff' stroke-width='2' stroke-dasharray='4 4'/><rect x='70' y='60' width='260' height='50' rx='4' fill='%23ffffff' fill-opacity='0.2' stroke='%23ffffff' stroke-width='1.5'/><rect x='70' y='125' width='120' height='115' rx='4' fill='%23ffffff' fill-opacity='0.15' stroke='%23ffffff' stroke-width='1.5'/><rect x='210' y='125' width='120' height='115' rx='4' fill='%23ffffff' fill-opacity='0.15' stroke='%23ffffff' stroke-width='1.5'/></svg>",
+        "Automatizaciones": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'><defs><linearGradient id='g4' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ec4899'/><stop offset='100%' stop-color='%238b5cf6'/></linearGradient></defs><rect width='400' height='300' fill='url(%23g4)'/><path d='M200 70 L260 130 L220 130 L220 200 L180 200 L180 130 L140 130 Z' fill='%23ffffff' fill-opacity='0.2'/><circle cx='200' cy='150' r='50' fill='none' stroke='%23ffffff' stroke-width='3'/><path d='M200 80 a 70 70 0 0 1 70 70' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/><circle cx='200' cy='150' r='10' fill='%23ffffff'/><circle cx='130' cy='100' r='15' fill='%23ffffff' fill-opacity='0.3'/><circle cx='280' cy='200' r='20' fill='%23ffffff' fill-opacity='0.2'/></svg>"
+      };
+
+      return defaults[categoria] || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'><defs><linearGradient id='g5' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%236b7280'/><stop offset='100%' stop-color='%239ca3af'/></linearGradient></defs><rect width='400' height='300' fill='url(%23g5)'/><circle cx='200' cy='150' r='40' fill='%23ffffff' fill-opacity='0.2'/></svg>";
+    },
+
     iniciales(nombre) {
       return nombre
         .split(" ")
@@ -161,4 +179,5 @@
   window.cerrarSesion = api.cerrarSesion.bind(api);
   window.renderNavbar = api.renderNavbar.bind(api);
   window.navegarA = api.navegarA.bind(api);
+  window.obtenerImagenUrl = api.obtenerImagenUrl.bind(api);
 })();

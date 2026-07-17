@@ -38,6 +38,10 @@ function renderProducto(p, calificaciones) {
     : null;
 
   contenedor.innerHTML = `
+    <div class="detalle-portada-contenedor">
+      <img src="${window.RiwiApp.api.obtenerImagenUrl(p.url_imagen, p.categoria)}" alt="${p.titulo}" class="detalle-portada-img">
+    </div>
+
     <span class="badge" style="background:var(--color-accent-light);color:var(--color-accent-dark)">${p.categoria}</span>
     <h2 style="margin:10px 0 2px">${p.titulo}</h2>
     <p class="subtitle" style="margin-bottom:16px">Vendido por ${p.vendedor}</p>

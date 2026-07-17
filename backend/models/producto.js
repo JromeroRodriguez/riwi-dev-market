@@ -1,11 +1,11 @@
 const pool = require("../db/connection");
 
-async function crear_producto(vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio) {
+async function crear_producto(vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio, url_imagen = null) {
   const { rows } = await pool.query(
-    `INSERT INTO productos (vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio, estado)
-     VALUES ($1, $2, $3, $4, $5, $6, 'en_revision')
-     RETURNING id, vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio, estado, fecha_creacion`,
-    [vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio]
+    `INSERT INTO productos (vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio, url_imagen, estado)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, 'en_revision')
+     RETURNING id, vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio, url_imagen, estado, fecha_creacion`,
+    [vendedor_id, categoria_id, titulo, descripcion, precio, url_repositorio, url_imagen]
   );
   return rows[0];
 }
@@ -31,7 +31,7 @@ async function listar_publicados(categoria_id = null, precio_max = null, busqued
 
   const where = condiciones.join(" AND ");
   const { rows } = await pool.query(
-    `SELECT p.id, p.titulo, p.descripcion, p.precio, p.url_repositorio,
+    `SELECT p.id, p.titulo, p.descripcion, p.precio, p.url_repositorio, p.url_imagen,
             p.fecha_creacion, c.nombre AS categoria, u.nombre AS vendedor,
             COALESCE(AVG(cal.puntuacion), 0) AS calificacion_promedio,
             COUNT(cal.id) AS total_calificaciones
@@ -85,7 +85,7 @@ async function listar_pendientes() {
 }
 
 async function actualizar_producto(producto_id, vendedor_id, campos) {
-  const columnas_permitidas = new Set(["titulo", "descripcion", "precio", "url_repositorio", "categoria_id"]);
+  const columnas_permitidas = new Set(["titulo", "descripcion", "precio", "url_repositorio", "categoria_id", "url_imagen"]);
   const actualizaciones = [];
   const valores = [];
   let idx = 1;
@@ -104,7 +104,7 @@ async function actualizar_producto(producto_id, vendedor_id, campos) {
     `UPDATE productos
      SET ${actualizaciones.join(", ")}, estado = 'en_revision'
      WHERE id = $${idx++} AND vendedor_id = $${idx}
-     RETURNING id, titulo, descripcion, precio, url_repositorio, estado`,
+     RETURNING id, titulo, descripcion, precio, url_repositorio, url_imagen, estado`,
     valores
   );
   return rows[0] || null;
