@@ -54,6 +54,50 @@ async function obtener_compra_propia(compra_id, comprador_id) {
   return rows[0] || null;
 }
 
+async function obtener_productos_para_lote(producto_ids) {
+  const { rows } = await pool.query(
+    `SELECT id, vendedor_id, precio, estado, titulo
+     FROM productos WHERE id = ANY($1)`,
+    [producto_ids]
+  );
+  return rows;
+}
+
+async function crear_compra_lote(comprador_id, compras) {
+  const cliente = await pool.connect();
+  try {
+    await cliente.query("BEGIN");
+
+    const resultados = [];
+    for (const { producto_id, monto } of compras) {
+      const { rows: existe } = await cliente.query(
+        `SELECT 1 FROM productos WHERE id = $1 AND estado = 'publicado'`,
+        [producto_id]
+      );
+      if (existe.length === 0) {
+        await cliente.query("ROLLBACK");
+        return { exito: false, producto_id };
+      }
+
+      const { rows } = await cliente.query(
+        `INSERT INTO compras (comprador_id, producto_id, monto, estado_pago)
+         VALUES ($1, $2, $3, 'completado')
+         RETURNING id, producto_id, monto, estado_pago, fecha_compra`,
+        [comprador_id, producto_id, monto]
+      );
+      resultados.push(rows[0]);
+    }
+
+    await cliente.query("COMMIT");
+    return { exito: true, compras: resultados };
+  } catch (err) {
+    await cliente.query("ROLLBACK");
+    throw err;
+  } finally {
+    cliente.release();
+  }
+}
+
 async function ventas_por_vendedor(vendedor_id) {
   const { rows } = await pool.query(
     `SELECT COUNT(co.id) AS total_ventas, COALESCE(SUM(co.monto), 0) AS ingresos_totales
@@ -69,6 +113,8 @@ module.exports = {
   obtener_producto_publicado,
   ya_comprado,
   crear_compra,
+  obtener_productos_para_lote,
+  crear_compra_lote,
   listar_por_comprador,
   obtener_compra_propia,
   ventas_por_vendedor,
