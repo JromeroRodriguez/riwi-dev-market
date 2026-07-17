@@ -2,7 +2,7 @@ const pool = require("../db/connection");
 
 async function obtener_producto_publicado(producto_id) {
   const { rows } = await pool.query(
-    "SELECT id, vendedor_id, precio, estado FROM productos WHERE id = $1",
+    "SELECT id, vendedor_id, precio, estado FROM productos WHERE id = $1 AND estado = 'publicado'",
     [producto_id]
   );
   return rows[0] || null;
@@ -18,13 +18,52 @@ async function ya_comprado(comprador_id, producto_id) {
 }
 
 async function crear_compra(comprador_id, producto_id, monto) {
-  const { rows } = await pool.query(
-    `INSERT INTO compras (comprador_id, producto_id, monto, estado_pago)
-     VALUES ($1, $2, $3, 'completado')
-     RETURNING id, comprador_id, producto_id, monto, estado_pago, fecha_compra`,
-    [comprador_id, producto_id, monto]
-  );
-  return rows[0];
+  const cliente = await pool.connect();
+
+  try {
+    await cliente.query("BEGIN");
+
+    const { rows: productoRows } = await cliente.query(
+      `SELECT id, estado
+       FROM productos
+       WHERE id = $1
+       FOR UPDATE`,
+      [producto_id]
+    );
+
+    if (productoRows.length === 0 || productoRows[0].estado !== "publicado") {
+      await cliente.query("ROLLBACK");
+      return null;
+    }
+
+    const { rows } = await cliente.query(
+      `INSERT INTO compras (comprador_id, producto_id, monto, estado_pago)
+       VALUES ($1, $2, $3, 'completado')
+       RETURNING id, comprador_id, producto_id, monto, estado_pago, fecha_compra`,
+      [comprador_id, producto_id, monto]
+    );
+
+    const { rows: productoActualizado } = await cliente.query(
+      `UPDATE productos
+       SET estado = 'vendido'
+       WHERE id = $1 AND estado = 'publicado'
+       RETURNING id`,
+      [producto_id]
+    );
+
+    if (productoActualizado.length === 0) {
+      await cliente.query("ROLLBACK");
+      return null;
+    }
+
+    await cliente.query("COMMIT");
+    return rows[0];
+  } catch (err) {
+    await cliente.query("ROLLBACK");
+    throw err;
+  } finally {
+    cliente.release();
+  }
 }
 
 async function listar_por_comprador(comprador_id) {

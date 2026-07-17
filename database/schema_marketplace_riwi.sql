@@ -42,7 +42,7 @@ CREATE TABLE productos (
     url_repositorio VARCHAR(255) NOT NULL,
     copias_disponibles INTEGER CHECK (copias_disponibles IS NULL OR copias_disponibles >= 0),
     estado VARCHAR(20) NOT NULL DEFAULT 'en_revision'
-        CHECK (estado IN ('en_revision', 'aprobado', 'rechazado', 'publicado', 'archivado')),
+        CHECK (estado IN ('en_revision', 'aprobado', 'rechazado', 'publicado', 'archivado', 'vendido')),
     motivo_rechazo TEXT,
     fecha_creacion TIMESTAMP NOT NULL DEFAULT NOW()
 );

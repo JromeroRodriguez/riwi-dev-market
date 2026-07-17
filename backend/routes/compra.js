@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const compraModel = require("../models/compra");
-const productoModel = require("../models/producto");
 const notificacionModel = require("../models/notificacion");
 const carritoModel = require("../models/carrito");
 const { requiereRol } = require("../middleware/auth");
@@ -17,10 +16,10 @@ router.post("/", requiereRol(), async (req, res) => {
       return res.status(400).json({ error: "No puedes comprar tu propio producto" });
     }
 
-    const marcado = await productoModel.marcar_vendido(producto_id);
-    if (!marcado) return res.status(409).json({ error: "Este producto ya no está disponible" });
-
     const compra = await compraModel.crear_compra(req.usuario.id, producto_id, producto.precio);
+    if (!compra) {
+      return res.status(409).json({ error: "Este producto ya no está disponible" });
+    }
 
     await notificacionModel.crear_notificacion(
       producto.vendedor_id,
