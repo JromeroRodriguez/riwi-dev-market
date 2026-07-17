@@ -18,7 +18,7 @@ async function cargarProducto(productoId) {
   const contenedor = document.getElementById("producto-contenedor");
   try {
     const [dataProducto, dataCalificaciones] = await Promise.all([
-      window.RiwiApp.api.apiFetch(`/productos/${productoId}`),
+      window.RiwiApp.api.apiFetch(`/productos/${productoId}`, { authOptional: true }),
       window.RiwiApp.api.apiFetch(`/productos/${productoId}/calificaciones`),
     ]);
 
@@ -39,6 +39,7 @@ function renderProducto(p, calificaciones) {
 
   contenedor.innerHTML = `
     <span class="badge" style="background:var(--color-accent-light);color:var(--color-accent-dark)">${p.categoria}</span>
+    ${p.ya_comprado ? `<span class="badge-ya-comprado" style="margin-left:8px">✓ Ya comprado</span>` : ""}
     <h2 style="margin:10px 0 2px">${p.titulo}</h2>
     <p class="subtitle" style="margin-bottom:16px">Vendido por ${p.vendedor}</p>
 
@@ -88,14 +89,12 @@ function renderZonaAccion(producto, usuario, esDueno) {
   const zona = document.getElementById("producto-zona-accion");
 
   if (esDueno) {
-    zona.innerHTML = producto.estado === "vendido"
-      ? `<p class="subtitle">Este producto ya fue vendido y ya no aparece en el catálogo.</p>`
-      : `<p class="subtitle">Este es tu propio producto.</p>`;
+    zona.innerHTML = `<p class="subtitle">Este es tu propio producto.</p>`;
     return;
   }
 
   if (producto.estado !== "publicado") {
-    zona.innerHTML = `<p class="subtitle">Este producto ya no está disponible (fue vendido).</p>`;
+    zona.innerHTML = `<p class="subtitle">Este producto ya no está disponible.</p>`;
     return;
   }
 
@@ -104,9 +103,31 @@ function renderZonaAccion(producto, usuario, esDueno) {
     return;
   }
 
+  const enCarrito = window.RiwiApp?.carrito?.estaEnCarrito?.(producto.id);
+
+  if (enCarrito) {
+    zona.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center">
+        <a href="#/carrito"><button class="secundario">Ver en el carrito</button></a>
+      </div>
+    `;
+    return;
+  }
+
   const btn = document.createElement("button");
-  btn.textContent = "Comprar producto";
-  btn.addEventListener("click", () => comprarProducto(producto.id, btn));
+  btn.textContent = "Agregar al carrito";
+  btn.addEventListener("click", () => {
+    const agregado = window.RiwiApp?.carrito?.agregar?.({
+      id: producto.id,
+      titulo: producto.titulo,
+      precio: producto.precio,
+      categoria: producto.categoria,
+      vendedor: producto.vendedor,
+    });
+    if (agregado) {
+      renderZonaAccion(producto, usuario, esDueno);
+    }
+  });
   zona.appendChild(btn);
 }
 

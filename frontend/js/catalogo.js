@@ -69,7 +69,7 @@ async function cargarProductos() {
   const vacio = document.getElementById("catalogo-vacio");
 
   try {
-    const data = await window.RiwiApp.api.apiFetch(`/productos?${params.toString()}`);
+    const data = await window.RiwiApp.api.apiFetch(`/productos?${params.toString()}`, { authOptional: true });
     grid.innerHTML = "";
 
     if (!data.productos.length) {
@@ -88,11 +88,15 @@ async function cargarProductos() {
 
       const icono = iconosPorCategoria[p.categoria] || "📦";
       const promedio = Number(p.calificacion_promedio).toFixed(1);
+      const badgeComprado = p.ya_comprado
+        ? `<span class="badge-ya-comprado">✓ Ya comprado</span>`
+        : "";
 
       card.innerHTML = `
         <div class="icono">${icono}</div>
         <p class="titulo">${p.titulo}</p>
         <p class="categoria">${p.categoria}</p>
+        ${badgeComprado}
         <div class="footer-card">
           <span>${window.RiwiApp.api.formatoMoneda(p.precio)}</span>
           <span>⭐ ${p.total_calificaciones > 0 ? promedio : "—"}</span>
