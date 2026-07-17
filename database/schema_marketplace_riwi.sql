@@ -40,8 +40,9 @@ CREATE TABLE productos (
     descripcion TEXT NOT NULL,
     precio NUMERIC(10, 2) NOT NULL CHECK (precio >= 0),
     url_repositorio VARCHAR(255) NOT NULL,
+    copias_disponibles INTEGER CHECK (copias_disponibles IS NULL OR copias_disponibles >= 0),
     estado VARCHAR(20) NOT NULL DEFAULT 'en_revision'
-        CHECK (estado IN ('en_revision', 'aprobado', 'rechazado', 'publicado', 'archivado', 'vendido')),
+        CHECK (estado IN ('en_revision', 'aprobado', 'rechazado', 'publicado', 'archivado')),
     motivo_rechazo TEXT,
     fecha_creacion TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -65,6 +66,22 @@ CREATE TABLE compras (
 
 CREATE INDEX idx_compras_comprador ON compras(comprador_id);
 CREATE INDEX idx_compras_producto ON compras(producto_id);
+
+-- ============================================================
+-- TABLA: carrito
+-- Carrito de compras persistente en BD (viaja con el usuario)
+-- ============================================================
+CREATE TABLE carrito (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    comprador_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    producto_id UUID NOT NULL REFERENCES productos(id) ON DELETE RESTRICT,
+    seleccionado BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_agregado TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (comprador_id, producto_id)
+);
+
+CREATE INDEX idx_carrito_comprador ON carrito(comprador_id);
+CREATE INDEX idx_carrito_producto ON carrito(producto_id);
 
 -- ============================================================
 -- TABLA: calificaciones
