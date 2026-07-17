@@ -87,6 +87,7 @@ function renderCalificaciones(calificaciones) {
 
 function renderZonaAccion(producto, usuario, esDueno) {
   const zona = document.getElementById("producto-zona-accion");
+  zona.innerHTML = "";
 
   if (esDueno) {
     zona.innerHTML = `<p class="subtitle">Este es tu propio producto.</p>`;
@@ -114,10 +115,11 @@ function renderZonaAccion(producto, usuario, esDueno) {
     return;
   }
 
+  zona.innerHTML = "";
   const btn = document.createElement("button");
   btn.textContent = "Agregar al carrito";
-  btn.addEventListener("click", () => {
-    const agregado = window.RiwiApp?.carrito?.agregar?.({
+  btn.addEventListener("click", async () => {
+    const agregado = await window.RiwiApp?.carrito?.agregar?.({
       id: producto.id,
       titulo: producto.titulo,
       precio: producto.precio,
