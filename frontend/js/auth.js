@@ -16,6 +16,7 @@ function initLogin() {
         body: { email, password },
       });
       window.RiwiApp.api.guardarSesion(data.token, data.usuario);
+      await window.RiwiApp.carrito?.cargar();
 
       await Swal.fire({
         icon: "success",

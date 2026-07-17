@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const productoModel = require("../models/producto");
 const notificacionModel = require("../models/notificacion");
-const { requiereRol } = require("../middleware/auth");
+const { requiereRol, obtenerUsuarioOpcional } = require("../middleware/auth");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -71,13 +71,14 @@ const deleteUploadedFiles = (files) => {
   }
 };
 
-router.get("/", async (req, res) => {
+router.get("/", obtenerUsuarioOpcional, async (req, res) => {
   try {
     const { categoria_id, precio_max, q } = req.query;
     const productos = await productoModel.listar_publicados(
       categoria_id || null,
       precio_max ? parseFloat(precio_max) : null,
-      q || null
+      q || null,
+      req.usuario?.id || null
     );
     return res.json({ productos });
   } catch (err) {

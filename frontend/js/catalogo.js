@@ -69,7 +69,7 @@ async function cargarProductos() {
   const vacio = document.getElementById("catalogo-vacio");
 
   try {
-    const data = await window.RiwiApp.api.apiFetch(`/productos?${params.toString()}`);
+    const data = await window.RiwiApp.api.apiFetch(`/productos?${params.toString()}`, { authOptional: true });
     grid.innerHTML = "";
 
     if (!data.productos.length) {
