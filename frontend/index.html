@@ -281,7 +281,7 @@
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <h2 style="margin:0">Mis productos</h2>
-      <button onclick="document.getElementById('dv-form-nuevo-producto').style.display='block'; this.style.display='none'">+ Publicar producto</button>
+      <button id="dv-btn-publicar" onclick="this.style.display='none'; document.getElementById('dv-form-nuevo-producto').style.display='block'">Agregar producto</button>
     </div>
 
     <div id="dv-form-nuevo-producto" class="form-card" style="display:none;margin:0 0 20px;max-width:none">

@@ -79,7 +79,7 @@ npm start
 
 El servidor queda en `http://localhost:5000`.
 
-**Usuario admin inicial:** `admin@riwi.io` / `Admin123` (se crea automáticamente al iniciar).
+**Usuario admin inicial:** `admin@riwi.io` / `admin123` (se crea automáticamente al iniciar).
 
 ### 3. Frontend
 

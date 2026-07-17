@@ -36,15 +36,28 @@ app.get("/api/health", (req, res) => {
 
 async function seedAdmin() {
   try {
-    const { rows } = await pool.query("SELECT 1 FROM usuarios WHERE email = $1", ["admin@riwi.io"]);
+    const { rows } = await pool.query(
+      "SELECT id, password_hash FROM usuarios WHERE email = $1",
+      ["admin@riwi.io"]
+    );
+    const hash = await bcrypt.hash("admin123", 10);
+
     if (rows.length === 0) {
-      const hash = await bcrypt.hash("admin123", 10);
       await pool.query(
         `INSERT INTO usuarios (nombre, email, password_hash, rol, estado)
          VALUES ($1, $2, $3, $4, $5)`,
         ["Admin RIWI", "admin@riwi.io", hash, "administrador", "activo"]
       );
       console.log("Usuario administrador creado: admin@riwi.io / admin123");
+    } else {
+      const passwordValido = await bcrypt.compare("admin123", rows[0].password_hash);
+      if (!passwordValido) {
+        await pool.query(
+          "UPDATE usuarios SET password_hash = $1, rol = 'administrador', estado = 'activo' WHERE email = $2",
+          [hash, "admin@riwi.io"]
+        );
+        console.log("Contraseña del administrador actualizada: admin@riwi.io / admin123");
+      }
     }
   } catch (err) {
     console.error("Error al sembrar admin:", err.message);
