@@ -1,5 +1,3 @@
-let productoIdActual = null;
-
 function initProducto(productoId) {
   window.RiwiApp?.api?.renderNavbar("producto-nav-links");
   productoIdActual = productoId;
@@ -90,6 +88,7 @@ function renderCalificaciones(calificaciones) {
 
 function renderZonaAccion(producto, usuario, esDueno) {
   const zona = document.getElementById("producto-zona-accion");
+  zona.innerHTML = "";
 
   if (esDueno) {
     zona.innerHTML = producto.estado === "vendido"
@@ -108,45 +107,32 @@ function renderZonaAccion(producto, usuario, esDueno) {
     return;
   }
 
-  const btn = document.createElement("button");
-  btn.textContent = "Comprar producto";
-  btn.addEventListener("click", () => comprarProducto(producto.id, btn));
-  zona.appendChild(btn);
-}
+  const enCarrito = window.RiwiApp?.carrito?.estaEnCarrito?.(producto.id);
 
-async function comprarProducto(producto_id, boton) {
-  const confirmado = await alertaConfirmar(
-    "Se registrará la compra y tendrás acceso inmediato al repositorio del producto.",
-    "¿Confirmar la compra?"
-  );
-  if (!confirmado) return;
-
-  alertaCargando("Procesando tu compra...");
-
-  try {
-    await window.RiwiApp.api.apiFetch("/compras", {
-      method: "POST",
-      auth: true,
-      body: { producto_id },
-    });
-
-    const resultado = await Swal.fire({
-      icon: "success",
-      title: "¡Compra realizada!",
-      text: "Ya puedes acceder al repositorio desde Mis compras.",
-      confirmButtonText: "Ver mis compras",
-      showCancelButton: true,
-      cancelButtonText: "Seguir explorando",
-      confirmButtonColor: SWAL_COLOR_CONFIRMAR,
-      cancelButtonColor: SWAL_COLOR_CANCELAR,
-      customClass: { popup: "swal-riwi" },
-    });
-
-    boton.remove();
-    if (resultado.isConfirmed) window.RiwiApp.router.navegarA("mis-compras");
-  } catch (err) {
-    alertaError(err.message);
+  if (enCarrito) {
+    zona.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center">
+        <a href="#/carrito"><button class="secundario">Ver en el carrito</button></a>
+      </div>
+    `;
+    return;
   }
+
+  const btn = document.createElement("button");
+  btn.textContent = "Agregar al carrito";
+  btn.addEventListener("click", async () => {
+    const agregado = await window.RiwiApp?.carrito?.agregar?.({
+      id: producto.id,
+      titulo: producto.titulo,
+      precio: producto.precio,
+      categoria: producto.categoria,
+      vendedor: producto.vendedor,
+    });
+    if (agregado) {
+      renderZonaAccion(producto, usuario, esDueno);
+    }
+  });
+  zona.appendChild(btn);
 }
 
 window.RiwiApp = window.RiwiApp || {};

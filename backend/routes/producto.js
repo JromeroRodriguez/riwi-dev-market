@@ -3,6 +3,7 @@ const router = express.Router();
 const productoModel = require("../models/producto");
 const notificacionModel = require("../models/notificacion");
 const { requiereRol } = require("../middleware/auth");
+const { verificarTokenOpcional } = require("../middleware/auth");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -71,13 +72,15 @@ const deleteUploadedFiles = (files) => {
   }
 };
 
-router.get("/", async (req, res) => {
+router.get("/", verificarTokenOpcional, async (req, res) => {
   try {
     const { categoria_id, precio_max, q } = req.query;
+    const comprador_id = req.usuario?.id || null;
     const productos = await productoModel.listar_publicados(
       categoria_id || null,
       precio_max ? parseFloat(precio_max) : null,
-      q || null
+      q || null,
+      comprador_id
     );
     return res.json({ productos });
   } catch (err) {
@@ -119,7 +122,8 @@ router.get("/:producto_id", async (req, res) => {
 
 router.post("/", requiereRol("vendedor", "administrador"), cpUploadMiddleware, async (req, res) => {
   try {
-    const { titulo, descripcion, categoria_id, precio } = req.body || {};
+    const { titulo, descripcion, categoria_id } = req.body || {};
+    const precio = parseFloat(req.body?.precio);
     let { url_repositorio } = req.body || {};
 
     const campos_obligatorios = ["titulo", "descripcion", "categoria_id", "precio"];
@@ -133,9 +137,9 @@ router.post("/", requiereRol("vendedor", "administrador"), cpUploadMiddleware, a
       deleteUploadedFiles(files);
       return res.status(400).json({ error: `Campos obligatorios faltantes: ${faltantes.join(", ")}` });
     }
-    if (parseFloat(precio) < 0) {
+    if (isNaN(precio) || precio < 0) {
       deleteUploadedFiles(files);
-      return res.status(400).json({ error: "El precio no puede ser negativo" });
+      return res.status(400).json({ error: "El precio debe ser un número válido y no puede ser negativo" });
     }
 
     if (imagenFile && imagenFile.size > 2 * 1024 * 1024) {
@@ -167,7 +171,7 @@ router.post("/", requiereRol("vendedor", "administrador"), cpUploadMiddleware, a
 
 router.put("/:producto_id", requiereRol("vendedor", "administrador"), cpUploadMiddleware, async (req, res) => {
   try {
-    if (!(await productoModel.es_propietario(req.params.producto_id, req.usuario.id))) {
+    if (req.usuario.rol !== "administrador" && !(await productoModel.es_propietario(req.params.producto_id, req.usuario.id))) {
       deleteUploadedFiles(req.files);
       return res.status(403).json({ error: "No tienes permiso para editar este producto" });
     }
@@ -204,7 +208,7 @@ router.put("/:producto_id", requiereRol("vendedor", "administrador"), cpUploadMi
 
 router.delete("/:producto_id", requiereRol("vendedor", "administrador"), async (req, res) => {
   try {
-    if (!(await productoModel.es_propietario(req.params.producto_id, req.usuario.id))) {
+    if (req.usuario.rol !== "administrador" && !(await productoModel.es_propietario(req.params.producto_id, req.usuario.id))) {
       return res.status(403).json({ error: "No tienes permiso para eliminar este producto" });
     }
     const resultado = await productoModel.eliminar_producto(req.params.producto_id, req.usuario.id);

@@ -21,6 +21,9 @@
     cerrarSesion() {
       localStorage.removeItem("token");
       localStorage.removeItem("usuario");
+      if (window.RiwiApp?.carrito?.actualizarBadge) {
+        window.RiwiApp.carrito.actualizarBadge();
+      }
       window.location.hash = "#/";
     },
 
@@ -33,7 +36,7 @@
       window.location.hash = `#/${ruta}`;
     },
 
-    async apiFetch(endpoint, { method = "GET", body = null, auth = false } = {}) {
+    async apiFetch(endpoint, { method = "GET", body = null, auth = false, authOptional = false } = {}) {
       const headers = {};
       if (!(body instanceof FormData)) {
         headers["Content-Type"] = "application/json";
@@ -46,6 +49,9 @@
           throw new Error("Debes iniciar sesión para continuar");
         }
         headers["Authorization"] = `Bearer ${token}`;
+      } else if (authOptional) {
+        const token = this.obtenerToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
       }
 
       const opciones = { method, headers };
@@ -135,27 +141,78 @@
       const usuario = this.obtenerUsuario();
 
       if (!usuario) {
-        contenedor.innerHTML = `<a href="#/login">Iniciar sesión</a> <a href="#/registro" class="navbar-cta">Registrarse</a>`;
+        contenedor.innerHTML = `
+          <div class="navbar-links">
+            <a href="#/catalogo">Catálogo</a>
+          </div>
+          <div class="navbar-actions">
+            <a href="#/login" class="btn-navbar-outline">Iniciar sesión</a>
+            <a href="#/registro" class="btn-navbar-cta">Registrarse</a>
+          </div>
+        `;
         return;
       }
 
-      let enlaces = `<a href="#/catalogo">Catálogo</a> <a href="#/mis-compras">Mis compras</a> <a href="#/perfil">Mi perfil</a>`;
+      const rolLabel = { administrador: "Admin", vendedor: "Vendedor", comprador: "Comprador" };
+
+      let links = `<a href="#/catalogo">Catálogo</a>`;
+      links += `<a href="#/mis-compras">Mis compras</a>`;
 
       if (usuario.rol === "vendedor" || usuario.rol === "administrador") {
-        enlaces += ` <a href="#/dashboard-vendedor">Vender</a>`;
+        links += `<a href="#/dashboard-vendedor">Vender</a>`;
       }
       if (usuario.rol === "administrador") {
-        enlaces += ` <a href="#/dashboard-admin">Administración</a>`;
+        links += `<a href="#/dashboard-admin">Admin</a>`;
       }
 
-      enlaces += `
-        <span class="navbar-user">
-          <span class="navbar-avatar">${this.iniciales(usuario.nombre)}</span>
-          <span class="navbar-nombre">${usuario.nombre.split(" ")[0]}</span>
-          <a href="#" class="navbar-logout" id="btn-logout-${contenedorId}">Salir</a>
-        </span>
+      const cantidad = window.RiwiApp?.carrito?.cantidad?.() || 0;
+
+      contenedor.innerHTML = `
+        <div class="navbar-links">
+          ${links}
+        </div>
+        <div class="navbar-actions">
+          <a href="#/carrito" class="navbar-carrito">
+            🛒<span class="carrito-badge" style="display:${cantidad > 0 ? "flex" : "none"}">${cantidad}</span>
+          </a>
+          <div class="navbar-perfil" id="navbar-perfil-${contenedorId}">
+            <button class="navbar-perfil-btn" id="navbar-perfil-btn-${contenedorId}">
+              <span class="navbar-avatar">${this.iniciales(usuario.nombre)}</span>
+              <span class="navbar-nombre">${usuario.nombre.split(" ")[0]}</span>
+              <span class="navbar-chevron">▾</span>
+            </button>
+            <div class="navbar-dropdown" id="navbar-dropdown-${contenedorId}">
+              <div class="navbar-dropdown-header">
+                <span class="navbar-avatar navbar-avatar-lg">${this.iniciales(usuario.nombre)}</span>
+                <div>
+                  <div class="navbar-dropdown-name">${usuario.nombre}</div>
+                  <div class="navbar-dropdown-rol">${rolLabel[usuario.rol] || usuario.rol}</div>
+                </div>
+              </div>
+              <div class="navbar-dropdown-divider"></div>
+              <a href="#/perfil" class="navbar-dropdown-item">👤 Mi perfil</a>
+              <div class="navbar-dropdown-divider"></div>
+              <button class="navbar-dropdown-item navbar-dropdown-item--danger" id="btn-logout-${contenedorId}">🚪 Cerrar sesión</button>
+            </div>
+          </div>
+        </div>
       `;
-      contenedor.innerHTML = enlaces;
+
+      const perfilBtn = document.getElementById(`navbar-perfil-btn-${contenedorId}`);
+      const dropdown = document.getElementById(`navbar-dropdown-${contenedorId}`);
+
+      perfilBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle("open");
+      });
+
+      document.addEventListener("click", () => {
+        dropdown.classList.remove("open");
+      });
+
+      dropdown.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
 
       const logoutButton = document.getElementById(`btn-logout-${contenedorId}`);
       if (logoutButton) {
