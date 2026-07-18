@@ -87,3 +87,16 @@ function toastExito(mensaje) {
     customClass: { popup: "swal-riwi" },
   });
 }
+
+function alertaToast(mensaje, tipo = "info") {
+  Swal.fire({
+    icon: tipo,
+    title: mensaje,
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 2200,
+    timerProgressBar: true,
+    customClass: { popup: "swal-riwi" },
+  });
+}
